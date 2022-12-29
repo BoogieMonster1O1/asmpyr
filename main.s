@@ -28,11 +28,13 @@ _start:
     mov [size], al        ; set value of size
 
     mov bl, [size]
+
 mainLoop:
     cmp bl, 0
     je exit
 
     mov r8b, bl
+
 innerLoop:
     cmp r8b, 0
     je exitIn
