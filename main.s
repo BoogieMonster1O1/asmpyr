@@ -4,7 +4,7 @@ section .data
     newline: db 0xa
     char: db "*"
 
-section .bss           ;Uninitialized data
+section .bss
     size resb 1
 
 section .text
@@ -28,9 +28,14 @@ _start:
     mov [size], al        ; set value of size
 
     mov bl, [size]
-mainloop:
+mainLoop:
     cmp bl, 0
     je exit
+
+    mov r8b, bl
+innerLoop:
+    cmp r8b, 0
+    je exitIn
 
     mov rax, 1            ; write
     mov rdi, 1            ; to stdout
@@ -38,17 +43,20 @@ mainloop:
     mov rdx, 1            ; of 1 byte
     syscall
 
+    dec r8b               ; decrement height
+    jmp innerLoop         ; repeat
+
+exitIn:
     mov rax, 1            ; write
     mov rdi, 1            ; to stdout
     mov rsi, newline      ; a newline
     mov rdx, 1            ; of 1 byte
     syscall
 
-    dec bl
-    jmp mainloop
+    dec bl                ; decrement size
+    jmp mainLoop          ; repeat
 
 exit:
-
     mov rax, 60           ; exit
     mov rdi, 0            ; with exit code
     syscall
