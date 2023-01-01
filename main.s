@@ -1,8 +1,9 @@
 section .data
-    prompt: db "Enter size of pyramid:", 0xa
+    prompt: db "Enter height of pyramid: "
     promptLen: equ  $ - prompt
     newline: db 0xa
     char: db "*"
+    space: db " "
 
 section .bss
     size resb 1
@@ -27,35 +28,52 @@ _start:
     sub al, '0'           ; convert ascii to integer by subtracting '0'
     mov [size], al        ; set value of size
 
-    mov bl, [size]
+    mov r8, 0
 
 mainLoop:
-    cmp bl, 0
+    cmp r8, [size]
     je exit
 
-    mov r8b, bl
+    mov r9, [size]
+    dec r9
+spacesLoop:
+    cmp r9, r8
+    je spacesLoopExit
 
-innerLoop:
-    cmp r8b, 0
-    je exitIn
+    mov rax, 1            ; write
+    mov rdi, 1            ; to stdout
+    mov rsi, space        ; the character
+    mov rdx, 1            ; of 1 byte
+    syscall
 
+    dec r9
+    jmp spacesLoop
+
+spacesLoopExit:
+    mov r10, 0
+    mov r9, r8
+    shl r9, 1
+
+contentLoop:
     mov rax, 1            ; write
     mov rdi, 1            ; to stdout
     mov rsi, char         ; the character
     mov rdx, 1            ; of 1 byte
-    syscall
+    syscall 
 
-    dec r8b               ; decrement height
-    jmp innerLoop         ; repeat
+    cmp r10, r9
+    je contentLoopExit
 
-exitIn:
+    inc r10
+    jmp contentLoop
+contentLoopExit:
     mov rax, 1            ; write
     mov rdi, 1            ; to stdout
-    mov rsi, newline      ; a newline
-    mov rdx, 1            ; of 1 byte
+    mov rsi, newline      ; this message
+    mov rdx, 1            ; of this length
     syscall
 
-    dec bl                ; decrement size
+    inc r8                ; decrement size
     jmp mainLoop          ; repeat
 
 exit:
